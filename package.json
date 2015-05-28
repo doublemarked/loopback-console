@@ -17,7 +17,7 @@
     }
   ],
   "bin" : {
-    "loopback-console" : "./index.js"
+    "loopback-console" : "./bin/loopback-console"
   },
   "dependencies": {
     "app-root-path": "^1.0.0",
