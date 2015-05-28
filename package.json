@@ -1,0 +1,27 @@
+{
+  "name": "loopback-console",
+  "version": "0.1.0",
+  "description": "A REPL for Loopback app administration and convenience",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com:GovRight/loopback-console.git"
+  },
+  "author": "GovRight <contact@govright.org>",
+  "contributors": [
+    {
+      "name": "Heath Morrison",
+      "email": "heath@govright.org"
+    }
+  ],
+  "bin" : {
+    "loopback-console" : "./index.js"
+  },
+  "dependencies": {
+    "app-root-path": "^1.0.0",
+    "lodash": "^3.1.0",
+    "repl.history": "^0.1.3"
+  },
+  "devDependencies": {
+  }
+}
