@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "description": "A REPL for Loopback app administration and convenience",
   "main": "index.js",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com:GovRight/loopback-console.git"
+    "url": "git+https://github.com/GovRight/loopback-console.git"
   },
   "author": "GovRight <contact@govright.org>",
+  "homepage": "https://github.com/GovRight/loopback-console",
   "contributors": [
     {
       "name": "Heath Morrison",
