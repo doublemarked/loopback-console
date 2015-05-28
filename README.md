@@ -42,7 +42,8 @@ if (loopbackConsole.activated()) {
   app.start();
 }
 ```
-3. Execute your app's console by passing your app argument `--console` or setting environment variable `LOOPBACK_CONSOLE=1`. For example,
+
+Execute your app's console by passing your app argument `--console` or setting environment variable `LOOPBACK_CONSOLE=1`. For example,
 ```
   node . --console
 ```
