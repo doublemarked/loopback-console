@@ -17,7 +17,7 @@ it will attempt to use the current working directory.
 It is recommended that you add this to your package.json scripts as follows,
 ```
   "scripts": {
-    "console": "$(npm bin)/loopback-console ."
+    "console": "loopback-console ."
   }
 ```
 
