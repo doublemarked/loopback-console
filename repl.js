@@ -2,7 +2,6 @@ var vm = require('vm');
 var util = require('util');
 
 var repl = require('repl');
-var replHistory = require('repl.history');
 var _ = require('lodash');
 
 module.exports = {
@@ -11,10 +10,6 @@ module.exports = {
     config.eval = config.eval || loopbackAwareEval;
 
     var replServer = repl.start(config);
-
-    if (ctx.config.history) {
-      replHistory(replServer, config.history);
-    }
 
     replServer.on('exit', process.exit);
 
@@ -55,8 +50,7 @@ function loopbackAwareEval(code, context, file, cb) {
   if (!err) {
     try {
       result = script.runInThisContext({ displayErrors: false });
-      // FIXME: Better promise detection
-      if (result && String(result.constructor) === 'function Promise() { [native code] }') {
+      if (typeof Promise !== 'undefined' && result instanceof Promise) {
         result.then(function (r) {
           _.each(context, function (v, k) {
             if (context[k] === result) {
