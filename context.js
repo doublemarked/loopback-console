@@ -1,6 +1,6 @@
-var dummyContext = null;
+var mockContext = null;
 
-exports.makeDummyContext = function () {
+exports.makeMockContext = function () {
   var storage = {};
 
   return {
@@ -11,13 +11,13 @@ exports.makeDummyContext = function () {
 
 };
 
-exports.useDummyContext = function (loopback, context) {
+exports.useMockContext = function (loopback, context) {
   loopback = loopback || require('loopback');
-  dummyContext = context || dummyContext || exports.makeDummyContext();
+  mockContext = context || mockContext || exports.makeMockContext();
 
   loopback.getCurrentContext = function() {
-    return dummyContext;
+    return mockContext;
   };
 
-  return dummyContext;
+  return mockContext;
 };

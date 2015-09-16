@@ -8,7 +8,7 @@ var DEFAULT_CONFIG = {
   prompt: 'loopback > ',
   useGlobal: true,
   ignoreUndefined: true,
-  useDummyContext: true,
+  useMockContext: true,
 };
 
 module.exports = {
@@ -26,13 +26,13 @@ module.exports = {
 
     config = _.extend({}, DEFAULT_CONFIG, config);
 
-    var dummyContext;
+    var mockContext;
     var handles = config.handles || {};
     var handleInfo = {};
     var models = {};
 
-    if (config.useDummyContext) {
-      dummyContext = contextUtils.useDummyContext(app.loopback);
+    if (config.useMockContext) {
+      mockContext = contextUtils.useMockContext(app.loopback);
     }
 
     _.forOwn(handles.models || app.models, function (model) {
@@ -57,8 +57,8 @@ module.exports = {
         handleInfo.result = 'The handle on which cb() stores results';
     }
     if (!_.has(handles, 'context')) {
-        handles.context = dummyContext;
-        handleInfo.context = 'The dummy Loopback context';
+        handles.context = mockContext;
+        handleInfo.context = 'The mock Loopback context';
     }
 
     if (!config.quiet) {
