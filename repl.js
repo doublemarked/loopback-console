@@ -5,17 +5,16 @@ var repl = require('repl');
 var _ = require('lodash');
 
 module.exports = {
-  start: function (ctx, handles) {
+  start: function (ctx) {
+    var self = this;
     var config = _.clone(ctx.config);
     config.eval = config.eval || loopbackAwareEval;
 
     var replServer = repl.start(config);
-
+    _.extend(replServer.context, ctx.handles);
     replServer.on('exit', process.exit);
 
-    _.extend(replServer.context, handles);
-
-    if (handles.cb === true) {
+    if (ctx.handles.cb === true) {
       replServer.context.result = undefined;
       replServer.context.cb = function (err, res) {
         if (err) console.error('Error: '+err);
@@ -26,7 +25,51 @@ module.exports = {
       };
     }
 
+    replServer.defineCommand('usage', {
+      help: 'Detailed Loopback Console usage information',
+      action: function () {
+        this.outputStream.write(self.usage(ctx, true));
+        this.displayPrompt();
+      }
+    });
+
     return replServer;
+  },
+
+  usage: function (ctx, details) {
+    var usage =
+      '============================================\n' +
+      'Loopback Console\n\n' +
+      'Primary handles available:\n';
+    _.each(ctx.handleInfo, function (v, k) {
+      usage += '  -'+k+': '+v+'\n';
+    });
+
+    var customHandles = _.filter(_.keys(ctx.handles), function (k) { return !ctx.handleInfo[k] && !ctx.models[k]; });
+    if (!_.isEmpty(ctx.models) || !_.isEmpty(ctx.customHandles)) {
+      usage += '\nOther handles available:\n';
+    }
+    if (!_.isEmpty(ctx.models)) {
+      usage += '  - Models: ' + _.keys(ctx.models).join(', ') + '\n';
+    }
+    if (!_.isEmpty(customHandles)) {
+      usage += '  - Custom: ' + customHandles.join(',') + '\n';
+    }
+
+    if (details) {
+      usage +=
+        '\nExamples:\n'+
+        '  loopback > myUser = User.findOne({ where: { userame: \'heath\' })\n' +
+        '  loopback > myUser.updateAttribute(\'fullName\', \'Heath Morrison\')\n' +
+        '  loopback > myUser.widgets.add({ ... })\n\n';
+    }
+    usage += '============================================\n\n';
+
+    if (details) {
+
+    }
+
+    return usage;
   }
 };
 

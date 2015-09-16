@@ -8,7 +8,15 @@ var DEFAULT_CONFIG = {
   prompt: 'loopback > ',
   useGlobal: true,
   ignoreUndefined: true,
-  useMockContext: true,
+  useMockContext: true
+};
+
+var DEFAULT_HANDLE_INFO = {
+  ld: 'Lodash',
+  app: 'The Loopback app handle',
+  context: 'The mock Loopback context',
+  cb: 'A simplistic results callback that stores and prints',
+  result: 'The handle on which cb() stores results'
 };
 
 module.exports = {
@@ -26,65 +34,50 @@ module.exports = {
 
     config = _.extend({}, DEFAULT_CONFIG, config);
 
-    var mockContext;
-    var handles = config.handles || {};
-    var handleInfo = {};
-    var models = {};
+    var ctx = {
+      app: app,
+      lbContext: undefined,
+      config: config,
+      handles: config.handles || {},
+      handleInfo: {},
+      models: {}
+    };
 
     if (config.useMockContext) {
-      mockContext = contextUtils.useMockContext(app.loopback);
+      ctx.lbContext = contextUtils.useMockContext(app.loopback);
     }
 
-    _.forOwn(handles.models || app.models, function (model) {
-      if (!handles[model.modelName]) {
-        handles[model.modelName] = model;
-        models[model.modelName] = model;
-        delete handles.models;
+    _.forOwn(ctx.handles.models || app.models, function (model) {
+      if (!ctx.handles[model.modelName]) {
+        ctx.handles[model.modelName] = model;
+        ctx.models[model.modelName] = model;
+        delete ctx.handles.models;
       }
     });
 
-    if (!_.has(handles, 'ld')) {
-      handles.ld = _;
-      handleInfo.ld = 'Lodash';
+    if (!_.has(ctx.handles, 'ld')) {
+      ctx.handles.ld = _;
+      ctx.handleInfo.ld = DEFAULT_HANDLE_INFO.ld;
     }
-    if (!_.has(handles, 'app')) {
-      handles.app = app;
-      handleInfo.app = 'The Loopback app handle';
+    if (!_.has(ctx.handles, 'app')) {
+      ctx.handles.app = app;
+      ctx.handleInfo.app = DEFAULT_HANDLE_INFO.app;
     }
-    if (!_.has(handles, 'cb') || handles.cb === true) {
-        handles.cb = true;
-        handleInfo.cb = 'A simplistic results callback that stores and prints';
-        handleInfo.result = 'The handle on which cb() stores results';
+    if (!_.has(ctx.handles, 'cb') || ctx.handles.cb === true) {
+      ctx.handles.cb = true;
+      ctx.handleInfo.cb = DEFAULT_HANDLE_INFO.cb;
+      ctx.handleInfo.result = DEFAULT_HANDLE_INFO.result;
     }
-    if (!_.has(handles, 'context')) {
-        handles.context = mockContext;
-        handleInfo.context = 'The mock Loopback context';
+    if (ctx.lbContext && !_.has(ctx.handles, 'context')) {
+      ctx.handles.context = ctx.lbContext;
+      ctx.handleInfo.context =  DEFAULT_HANDLE_INFO.context;
     }
 
     if (!config.quiet) {
-      console.log('============================================');
-      console.log('Loopback Console\n');
-      console.log('Primary handles available: ');
-      _.each(handleInfo, function (v, k) {
-        console.log('  -', k+':', v);
-      });
-
-
-      var customHandles = _.filter(_.keys(handles), function (k) { return !handleInfo[k] && !models[k]; });
-      if (!_.isEmpty(models) || !_.isEmpty(customHandles)) {
-        console.log('\nOther handles available:');
-      }
-      if (!_.isEmpty(models)) {
-        console.log('  - Models:', _.keys(models).join(', '));
-      }
-      if (!_.isEmpty(customHandles)) {
-        console.log('  - Custom:', customHandles.join(','));
-      }
-      console.log('============================================\n');
+      console.log(repl.usage(ctx));
     }
 
-    var ctx = { app: app, config: config };
-    ctx.repl = repl.start(ctx, handles);
+    ctx.repl = repl.start(ctx);
 
     return cb && cb(null, ctx);
   },

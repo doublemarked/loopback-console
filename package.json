@@ -1,7 +1,7 @@
 {
   "name": "loopback-console",
-  "version": "0.1.1",
-  "description": "A REPL for Loopback app administration and convenience",
+  "version": "0.2.0",
+  "description": "A command-line tool for Loopback app debugging and administration",
   "main": "index.js",
   "license": "MIT",
   "repository": {
