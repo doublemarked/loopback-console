@@ -33,6 +33,14 @@ module.exports = {
       }
     });
 
+    replServer.defineCommand('models', {
+      help: 'Display available Loopback models',
+      action: function () {
+        this.outputStream.write(_.keys(ctx.models).join(', ')+'\n');
+        this.displayPrompt();
+      }
+    });
+
     return replServer;
   },
 
