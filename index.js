@@ -87,7 +87,7 @@ module.exports = {
     var appPath = process.argv[2] || 'server/server';
 
     var failBadPath = function () {
-      console.error('Error: Loopback app not found at path '+appPath+'!');
+      console.error('Error: Loopback app not loadable at path '+appPath+'!');
       process.exit(1);
     };
 
