@@ -21,8 +21,6 @@ module.exports = {
       replServer.eval = replServer._domain.bind(config.eval || loopbackAwareEval);
     });
 
-    replServer.context.rs = replServer;
-
     _.extend(replServer.context, ctx.handles);
     replServer.on('exit', process.exit);
 
