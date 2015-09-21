@@ -4,13 +4,25 @@ var util = require('util');
 var repl = require('repl');
 var _ = require('lodash');
 
+var Recoverable;
+
 module.exports = {
   start: function (ctx) {
     var self = this;
     var config = _.clone(ctx.config);
-    config.eval = config.eval || loopbackAwareEval;
 
     var replServer = repl.start(config);
+
+    // Trick REPLServer into giving us a Recoverable instance. This is necessary in order
+    // for us to build our own Recoverable instances, which is necessary for us to support
+    // multi-line input. Unfortunately REPLServer does not otherwise expose Recoverable.
+    replServer.eval('var bogus =', null, null, function (err) {
+      Recoverable = err.constructor;
+      replServer.eval = replServer._domain.bind(config.eval || loopbackAwareEval);
+    });
+
+    replServer.context.rs = replServer;
+
     _.extend(replServer.context, ctx.handles);
     replServer.on('exit', process.exit);
 
@@ -130,8 +142,3 @@ function isRecoverableError(e) {
   e.name === 'SyntaxError' &&
   /^(Unexpected end of input|Unexpected token)/.test(e.message);
 }
-
-function Recoverable(err) {
-  this.err = err;
-}
-util.inherits(Recoverable, SyntaxError);
