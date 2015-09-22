@@ -32,7 +32,7 @@ The recommended configuration is to add the console to your `package.json` scrip
 
 ```
   "scripts": {
-    "console": "loopback-console ."
+    "console": "loopback-console"
   }
 ```
 
@@ -47,12 +47,16 @@ Once added you may launch the console by running,
 The loopback-context makes it easy to work with your Loopback models.
 
 ```Javascript
+loopback > .models
+User, AccessToken, ACL, RoleMapping, Role, Widget
 loopback > Widget.count()
 0
 loopback > ld.keys(Widget.definition.properties)
 [ 'name', 'description', 'created', 'id' ]
 loopback > w = Widget.create({ name: 'myWidget01', description: 'My new Widget'})
 { name: 'myWidget01', description: 'My new Widget', id: 1 }
+loopback > Widget.count()
+1
 loopback > w.name='super-widget';
 'super-widget'
 loopback > w.save()
@@ -63,7 +67,7 @@ loopback > Widget.find()
 
 ## Available Handles
 
-By default, the loopback-console provides a number of handles designed to make it easier
+By default the loopback-console provides a number of handles designed to make it easier
 to work with your project,
 
 - Models: All of your app's Loopback models are available directly. For example, `User`. Type `.models` to see a list.
