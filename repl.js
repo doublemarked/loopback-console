@@ -51,6 +51,13 @@ module.exports = {
       }
     });
 
+    replServer.defineCommand('clear', {
+      help: 'Clear console screen',
+      action: function () {
+        process.stdout.write('\u001B[2J\u001B[0;0f');
+      }
+    });
+
     return replServer;
   },
 
