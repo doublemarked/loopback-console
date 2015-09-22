@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "server/server.js",
   "scripts": {
-    "pretest": "jshint ."
+    "pretest": "jshint .",
+    "console": "loopback-console"
   },
   "dependencies": {
     "compression": "^1.0.3",
