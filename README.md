@@ -1,7 +1,7 @@
 # loopback-console
 A command-line tool for Loopback app debugging and administration.
 
-<a href="https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf" target="_blank"><img src="https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf.png" width="626"/></a>
+<a href="https://asciinema.org/a/26662" target="_blank"><img src="https://asciinema.org/a/26662.png" width="626"/></a>
 
 The loopback-console is a command-line tool for interacting with your <a href="http://loopback.io" target="_blank">Loopback</a> app. It works like the built-in
 Node REPL, but provides a handful of useful features that are quite helpful when debugging or generally
