@@ -20,10 +20,21 @@ var DEFAULT_HANDLE_INFO = {
 };
 
 module.exports = {
+  // Used for caching activation status across module
+  // loads from different sources
+  _activated: false,
+  _started: false,
+  _ctx: undefined,
+
   activated: function () {
     /* jshint eqeqeq:false */
-    var envVarEnable = (process.env.LOOPBACK_CONSOLE == 'true' || process.env.LOOPBACK_CONSOLE == 1);
-    return envVarEnable || _.contains(process.argv, '--console');
+    this._activated =
+      this._activated ||
+      process.env.LOOPBACK_CONSOLE == 'true' ||
+      process.env.LOOPBACK_CONSOLE == 1 ||
+      _.contains(process.argv, '--console');
+
+    return this._activated;
   },
 
   start: function (app, config, cb) {
@@ -32,9 +43,14 @@ module.exports = {
       config = {};
     }
 
+    if (this._started) {
+      return cb && cb(null, this._ctx);
+    }
+    this._started = true;
+
     config = _.extend({}, DEFAULT_CONFIG, config);
 
-    var ctx = {
+    var ctx = this._ctx = {
       app: app,
       lbContext: undefined,
       config: config,
@@ -92,10 +108,13 @@ module.exports = {
     };
 
     try {
+      this._activated = true;
+
       var app = require(cwd+'/'+appPath);
       if (!app.loopback) {
         failBadPath();
       }
+
       module.exports.start(app);
     } catch(err) {
       if (err.code === 'MODULE_NOT_FOUND') {
