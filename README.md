@@ -3,8 +3,10 @@ A command-line tool for Loopback app debugging and administration.
 
 [![asciicast](https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf.png)](https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf)
 
+<a href="https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf" target="_blank"><img src="https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf.png"/></a>
+
 The loopback-console is a command-lind tool for interacting with your Loopback app. It works like the built-in
-Node REPL, but provides a handful of useful features that make it quite helpful when debugging or generally
+Node REPL, but provides a handful of useful features that are quite helpful when debugging or generally
 working within your app's environment. Features include,
 
 - Easy availability of your app's models and important handles. See [Available Handles](#available-handles)
@@ -36,7 +38,7 @@ The recommended configuration is to add the console to your `package.json` scrip
   }
 ```
 
-Once added, you may launch the console by running,
+Once added you may launch the console by running,
 
 ```
    npm run console
@@ -46,11 +48,16 @@ Once added, you may launch the console by running,
 
 The loopback-context makes it easy to work with your Loopback models.
 
+```
+
+```
+
 ## Available Handles
 
 By default, the loopback-console provides a number of handles designed to make it easier
 to work with your project,
 
+- Models: All of your app's Loopback models are available directly. For example, `User`. Type `.models` to see a list.
 - `app`: The Loopback app handle.
 - `context`: A mock of the [Loopback Context](docs.strongloop.com/display/LB/Using+current+context).
 - `cb`: [A simplified callback function](https://github.com/GovRight/loopback-console/blob/master/repl.js#L29-L34) that,
@@ -96,6 +103,13 @@ The following configuration directives are supported,
 - `useMockContext`: Enables or disables the use of the mock Loopback Context.
 - All built-in configuration options for [Node.js REPL](https://nodejs.org/api/repl.html), such as `prompt`.
 
+## Contributors
+
+- Heath Morrison ([doublemarked](https://github.com/doublemarked))
+
+Special thanks to the following people for their testing and feedback,
+
+- Pulkit Singhal ([pulkitsinghal](https://github.com/pulkitsinghal))
 
 ## License
 
