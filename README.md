@@ -1,9 +1,7 @@
 # loopback-console
 A command-line tool for Loopback app debugging and administration.
 
-[![asciicast](https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf.png)](https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf)
-
-<a href="https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf" target="_blank"><img src="https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf.png"/></a>
+<a href="https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf" target="_blank"><img src="https://asciinema.org/a/ay3z8dx0lw5ac2d0qk5fv3glf.png" width="626"/></a>
 
 The loopback-console is a command-lind tool for interacting with your Loopback app. It works like the built-in
 Node REPL, but provides a handful of useful features that are quite helpful when debugging or generally
@@ -59,13 +57,13 @@ to work with your project,
 
 - Models: All of your app's Loopback models are available directly. For example, `User`. Type `.models` to see a list.
 - `app`: The Loopback app handle.
-- `context`: A mock of the [Loopback Context](docs.strongloop.com/display/LB/Using+current+context).
-- `cb`: [A simplified callback function](https://github.com/GovRight/loopback-console/blob/master/repl.js#L29-L34) that,
+- `context`: A mock of the <a href="http://docs.strongloop.com/display/LB/Using+current+context" target="_blank">Loopback Context</a>.
+- `cb`: <a href="https://github.com/GovRight/loopback-console/blob/master/repl.js#L29-L34" target="_blank">A simplified callback function</a> that,
     - Has signature `function (err, result)`
     - Stores results on the REPL's `result` handle.
     - Prints errors with `console.error` and results with `console.log`
 - `result`: The storage target of the `cb` function
-- `ld`: [Lodash](https://lodash.com/)
+- `ld`: <a href="https://lodash.com/" target="_blank">Lodash</a>
 
 ## Advanced Setup
 
@@ -101,15 +99,15 @@ The following configuration directives are supported,
 
 - `quiet`: Suppresses the help text on startup and the automatic printing of `result`.
 - `useMockContext`: Enables or disables the use of the mock Loopback Context.
-- All built-in configuration options for [Node.js REPL](https://nodejs.org/api/repl.html), such as `prompt`.
+- All built-in configuration options for <a href="https://nodejs.org/api/repl.html" target="_blank">Node.js REPL</a>, such as `prompt`.
 
 ## Contributors
 
-- Heath Morrison ([doublemarked](https://github.com/doublemarked))
+- Heath Morrison (<a href="https://github.com/doublemarked" target="_blank">doublemarked</a>)
 
 Special thanks to the following people for their testing and feedback,
 
-- Pulkit Singhal ([pulkitsinghal](https://github.com/pulkitsinghal))
+- Pulkit Singhal (<a href="https://github.com/pulkitsinghal" target="_blank">pulkitsinghal</a>)
 
 ## License
 
