@@ -46,8 +46,19 @@ Once added you may launch the console by running,
 
 The loopback-context makes it easy to work with your Loopback models.
 
-```
-
+```Javascript
+loopback > Widget.count()
+0
+loopback > ld.keys(Widget.definition.properties)
+[ 'name', 'description', 'created', 'id' ]
+loopback > w = Widget.create({ name: 'myWidget01', description: 'My new Widget'})
+{ name: 'myWidget01', description: 'My new Widget', id: 1 }
+loopback > w.name='super-widget';
+'super-widget'
+loopback > w.save()
+{ name: 'super-widget', description: 'My new Widget' }
+loopback > Widget.find()
+[ { name: 'super-widget', description: 'My new Widget', id: 1 } ]
 ```
 
 ## Available Handles
