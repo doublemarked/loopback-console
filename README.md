@@ -4,7 +4,7 @@ A command-line tool for Loopback app debugging and administration.
 <a href="https://asciinema.org/a/26662" target="_blank"><img src="https://asciinema.org/a/26662.png" width="626"/></a>
 
 The loopback-console is a command-line tool for interacting with your <a href="http://loopback.io" target="_blank">Loopback</a> app. It works like the built-in
-Node REPL, but provides a handful of useful features that are quite helpful when debugging or generally
+Node REPL, but provides a handful of features that are quite helpful when debugging or generally
 working within your app's environment. Features include,
 
 - Easy availability of your app's models and important handles. See [Available Handles](#available-handles)
@@ -44,7 +44,7 @@ Once added you may launch the console by running,
 
 ## Examples
 
-The loopback-context makes it easy to work with your Loopback models.
+The loopback-console makes it easy to work with your Loopback models.
 
 ```Javascript
 loopback > .models
