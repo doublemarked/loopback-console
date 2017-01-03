@@ -6,10 +6,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GovRight/loopback-console.git"
+    "url": "git+https://github.com/doublemarked/loopback-console.git"
   },
-  "author": "GovRight <contact@govright.org>",
-  "homepage": "https://github.com/GovRight/loopback-console",
+  "author": "Heath Morrison <heath@govright.org>",
+  "homepage": "https://github.com/doublemarked/loopback-console",
   "contributors": [
     {
       "name": "Heath Morrison",
