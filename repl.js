@@ -1,5 +1,4 @@
 var vm = require('vm');
-var util = require('util');
 
 var repl = require('repl');
 var _ = require('lodash');
@@ -16,6 +15,8 @@ module.exports = {
     // Trick REPLServer into giving us a Recoverable instance. This is necessary in order
     // for us to build our own Recoverable instances, which is necessary for us to support
     // multi-line input. Unfortunately REPLServer does not otherwise expose Recoverable.
+    // Note: Recoverable is exported in Node > v6.2, but this remains to retain support for older
+    // versions.
     replServer.eval('var bogus =', null, null, function (err) {
       Recoverable = err.constructor;
       replServer.eval = replServer._domain.bind(config.eval || loopbackAwareEval);
@@ -111,7 +112,7 @@ function loopbackAwareEval(code, context, file, cb) {
   if (!err) {
     try {
       result = script.runInThisContext({ displayErrors: false });
-      if (typeof Promise !== 'undefined' && result instanceof Promise) {
+      if (result.then) {
         result.then(function (r) {
           _.each(context, function (v, k) {
             if (context[k] === result) {
