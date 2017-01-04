@@ -4,13 +4,11 @@ A command-line tool for Loopback app debugging and administration.
 <a href="https://asciinema.org/a/26662" target="_blank"><img src="https://asciinema.org/a/26662.png" width="626"/></a>
 
 The loopback-console is a command-line tool for interacting with your <a href="http://loopback.io" target="_blank">Loopback</a> app. It works like the built-in
-Node REPL, but provides a handful of features that are quite helpful when debugging or generally
+Node REPL, but provides a handful of features that are helpful when debugging or generally
 working within your app's environment. Features include,
 
 - Easy availability of your app's models and important handles. See [Available Handles](#available-handles)
 - Automatic promise resolution, for intuitive access to Loopback ORM responses.
-- A mock Loopback Context, allowing you to partially emulate the incoming request environment.
-
 
 # Installation
 
@@ -51,7 +49,7 @@ loopback > .models
 User, AccessToken, ACL, RoleMapping, Role, Widget
 loopback > Widget.count()
 0
-loopback > ld.keys(Widget.definition.properties)
+loopback > Object.keys(Widget.definition.properties)
 [ 'name', 'description', 'created', 'id' ]
 loopback > w = Widget.create({ name: 'myWidget01', description: 'My new Widget'})
 { name: 'myWidget01', description: 'My new Widget', id: 1 }
@@ -67,41 +65,36 @@ loopback > Widget.find()
 
 ## Available Handles
 
-By default the loopback-console provides a number of handles designed to make it easier
+By default the loopback-console provides a few handles designed to make it easier
 to work with your project,
 
 - Models: All of your app's Loopback models are available directly. For example, `User`. Type `.models` to see a list.
 - `app`: The Loopback app handle.
-- `context`: A mock of the <a href="http://docs.strongloop.com/display/LB/Using+current+context" target="_blank">Loopback Context</a>.
 - `cb`: <a href="https://github.com/GovRight/loopback-console/blob/master/repl.js#L29-L34" target="_blank">A simplified callback function</a> that,
     - Has signature `function (err, result)`
     - Stores results on the REPL's `result` handle.
     - Prints errors with `console.error` and results with `console.log`
 - `result`: The storage target of the `cb` function
-- `ld`: <a href="https://lodash.com/" target="_blank">Lodash</a>
 
 ## Advanced Setup
 
 In some cases you may want to perform operations each time the console loads
-to better integrate it with your app's environment. For instance, in our usage we
-auto-authenticate the admin user when the console loads and add a `currentUser` handle
-to our Loopback Context.
+to better integrate it with your app's environment.
 
 To integrate loopback-console with your app the following additions must be made
 to your app's `server/server.js` file,
 
-1. Include the library: `var loopbackConsole = require('loopback-console');`
+1. Include the library: `const LoopbackConsole = require('loopback-console');`
 2. Integrate it with server execution:
 ```
-if (loopbackConsole.activated()) {
-  loopbackConsole.start(app, {
-      prompt: "my-app # ",
-      // Other REPL or loopback-console config
-    }, function (err, ctx) {
-      // Perform post-boot operations here.
-      // The 'ctx' handle contains the console context, including the following
-      // properties: app, lbContext, handles, models
-    });
+// LoopbackConsole.activated() checks whether the conditions are right to launch
+// the console instead of the web server. The console can be activated by passing
+// the argument --console or by setting env-var LOOPBACK_CONSOLE=1
+if (LoopbackConsole.activated()) {
+  LoopbackConsole.start(app, {
+    prompt: "my-app # ",
+    // Other REPL or loopback-console config
+  });
 } else if (require.main === module) {
   app.start();
 }
@@ -113,7 +106,6 @@ By integrating the loopback-console you also gain the ability to configure its f
 The following configuration directives are supported,
 
 - `quiet`: Suppresses the help text on startup and the automatic printing of `result`.
-- `useMockContext`: Enables or disables the use of the mock Loopback Context.
 - All built-in configuration options for <a href="https://nodejs.org/api/repl.html" target="_blank">Node.js REPL</a>, such as `prompt`.
 - `handles`: Disable any default handles, or pass additional handles that you would like available on the console.
 
@@ -127,4 +119,4 @@ Special thanks to the following people for their testing and feedback,
 
 ## License
 
-loopback-console uses the MIT license. See [LICENSE](https://github.com/GovRight/loopback-console/blob/master/LICENSE) for more details.
+loopback-console uses the MIT license. See [LICENSE](https://github.com/doublemarked/loopback-console/blob/master/LICENSE) for more details.

@@ -1,143 +1,125 @@
-var vm = require('vm');
+'use strict';
 
-var repl = require('repl');
-var _ = require('lodash');
+const repl = require('repl');
 
-var Recoverable;
+const LoopbackRepl = module.exports = {
+  start(ctx) {
+    const config = Object.assign({}, ctx.config);
+    const replServer = repl.start(config);
 
-module.exports = {
-  start: function (ctx) {
-    var self = this;
-    var config = _.clone(ctx.config);
+    Object.assign(replServer.context, ctx.handles);
 
-    var replServer = repl.start(config);
-
-    // Trick REPLServer into giving us a Recoverable instance. This is necessary in order
-    // for us to build our own Recoverable instances, which is necessary for us to support
-    // multi-line input. Unfortunately REPLServer does not otherwise expose Recoverable.
-    // Note: Recoverable is exported in Node > v6.2, but this remains to retain support for older
-    // versions.
-    replServer.eval('var bogus =', null, null, function (err) {
-      Recoverable = err.constructor;
-      replServer.eval = replServer._domain.bind(config.eval || loopbackAwareEval);
-    });
-
-    _.extend(replServer.context, ctx.handles);
     replServer.on('exit', process.exit);
+    replServer.eval = wrapReplEval(replServer);
 
     if (ctx.handles.cb === true) {
       replServer.context.result = undefined;
-      replServer.context.cb = function (err, res) {
-        if (err) console.error('Error: '+err);
-        replServer.context.result = res;
+      replServer.context.cb = (err, result) => {
+        replServer.context.err = err;
+        replServer.context.result = result;
+
+        if (err) {
+          console.error('Error: ' + err);
+        }
         if (!config.quiet) {
-          console.log(res);
+          console.log(result);
         }
       };
     }
 
     replServer.defineCommand('usage', {
       help: 'Detailed Loopback Console usage information',
-      action: function () {
-        this.outputStream.write(self.usage(ctx, true));
+      action() {
+        this.outputStream.write(LoopbackRepl.usage(ctx, true));
         this.displayPrompt();
-      }
+      },
     });
 
     replServer.defineCommand('models', {
       help: 'Display available Loopback models',
-      action: function () {
-        this.outputStream.write(_.keys(ctx.models).join(', ')+'\n');
+      action() {
+        this.outputStream.write(Object.keys(ctx.models).join(', ') + '\n');
         this.displayPrompt();
-      }
+      },
     });
 
     return replServer;
   },
 
-  usage: function (ctx, details) {
-    var usage =
+  usage(ctx, details) {
+    const modelHandleNames = Object.keys(ctx.models);
+    const customHandleNames = Object.keys(ctx.handles).filter(k => {
+      return !ctx.handleInfo[k] && !ctx.models[k];
+    });
+
+    let usage =
       '============================================\n' +
       'Loopback Console\n\n' +
       'Primary handles available:\n';
-    _.each(ctx.handleInfo, function (v, k) {
-      usage += '  -'+k+': '+v+'\n';
+
+    Object.keys(ctx.handleInfo).forEach(key => {
+      usage += ` - ${key}: ${ctx.handleInfo[key]}\n`;
     });
 
-    var customHandles = _.filter(_.keys(ctx.handles), function (k) { return !ctx.handleInfo[k] && !ctx.models[k]; });
-    if (!_.isEmpty(ctx.models) || !_.isEmpty(ctx.customHandles)) {
+    if (modelHandleNames.length > 0 || ctx.customHandleNames.length > 0) {
       usage += '\nOther handles available:\n';
     }
-    if (!_.isEmpty(ctx.models)) {
-      usage += '  - Models: ' + _.keys(ctx.models).join(', ') + '\n';
+    if (modelHandleNames.length > 0) {
+      usage += `  - Models: ${ modelHandleNames.join(', ') }\n`;
     }
-    if (!_.isEmpty(customHandles)) {
-      usage += '  - Custom: ' + customHandles.join(',') + '\n';
+    if (customHandleNames.length > 0) {
+      usage += `  - Custom: ${ customHandleNames.join(',') }\n`;
     }
 
     if (details) {
       usage +=
-        '\nExamples:\n'+
-        '  loopback > myUser = User.findOne({ where: { userame: \'heath\' })\n' +
-        '  loopback > myUser.updateAttribute(\'fullName\', \'Heath Morrison\')\n' +
-        '  loopback > myUser.widgets.add({ ... })\n\n';
+        '\nExamples:\n' +
+        ctx.config.prompt +
+        'myUser = User.findOne({ where: { username: \'heath\' })\n' +
+        ctx.config.prompt +
+        'myUser.updateAttribute(\'fullName\', \'Heath Morrison\')\n' +
+        ctx.config.prompt +
+        'myUser.widgets.add({ ... })\n\n';
     }
     usage += '============================================\n\n';
 
-    if (details) {
-
-    }
-
     return usage;
-  }
+  },
 };
 
-// Much of this is borrowed from the default REPLServer eval
-function loopbackAwareEval(code, context, file, cb) {
-  var err, result, script;
-  // first, create the Script object to check the syntax
-  try {
-    script = vm.createScript(code, {
-      filename: file,
-      displayErrors: false
+// Wrap the default eval with a handler that resolves promises
+function wrapReplEval(replServer) {
+  const defaultEval = replServer.eval;
+
+  return function(code, context, file, cb) {
+    return defaultEval.call(this, code, context, file, (err, result) => {
+      if (!result || !result.then) {
+        return cb(err, result);
+      }
+
+      result.then(resolved => {
+        resolvePromises(result, resolved);
+        cb(null, resolved);
+      }).catch(err => {
+        resolvePromises(result, err);
+
+        console.log('\x1b[31m' + '[Promise Rejection]' + '\x1b[0m');
+        if (err && err.message) {
+          console.log('\x1b[31m' + err.message + '\x1b[0m');
+        }
+
+        // Application errors are not REPL errors
+        cb(null, err);
+      });
     });
-  } catch (e) {
-    if (isRecoverableError(e)) {
-      err = new Recoverable(e);
-    } else {
-      err = e;
+
+    function resolvePromises(promise, resolved) {
+      Object.keys(context).forEach(key => {
+        // Replace any promise handles in the REPL context with the resolved promise
+        if (context[key] === promise) {
+          context[key] = resolved;
+        }
+      });
     }
-  }
-
-  if (!err) {
-    try {
-      result = script.runInThisContext({ displayErrors: false });
-      if (result.then) {
-        result.then(function (r) {
-          _.each(context, function (v, k) {
-            if (context[k] === result) {
-              context[k] = r;
-            }
-          });
-          cb(null, r);
-        }).catch(cb);
-        return;
-      }
-    } catch (e) {
-      err = e;
-      if (err && process.domain) {
-        process.domain.emit('error', err);
-        process.domain.exit();
-        return;
-      }
-    }
-  }
-
-  cb(err, result);
-}
-
-function isRecoverableError(e) {
-  return e &&
-  e.name === 'SyntaxError' &&
-  /^(Unexpected end of input|Unexpected token)/.test(e.message);
+  };
 }

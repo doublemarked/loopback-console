@@ -1,3 +1,28 @@
 #!/usr/bin/env node
 
-require('..').cli();
+'use strict';
+
+const path = require('path');
+
+const LoopbackConsole = require('..');
+const appPath = process.argv[2] || '.';
+
+var failBadPath = function() {
+  console.error('Error: Loopback app not loadable at path', appPath);
+  process.exit(1);
+};
+
+try {
+  const app = require(path.resolve(appPath));
+  if (!app.loopback) {
+    failBadPath();
+  }
+
+  LoopbackConsole.start(app);
+} catch (err) {
+  if (err.code === 'MODULE_NOT_FOUND') {
+    failBadPath();
+  } else {
+    throw err;
+  }
+}

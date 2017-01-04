@@ -1,92 +1,57 @@
-var _ = require('lodash');
+'use strict';
 
-var repl = require('./repl');
-var contextUtils = require('./context');
+const repl = require('./repl');
 
-var DEFAULT_CONFIG = {
+const DEFAULT_REPL_CONFIG = {
   quiet: false,
   prompt: 'loopback > ',
   useGlobal: true,
   ignoreUndefined: true,
-  useMockContext: true
 };
 
-var DEFAULT_HANDLE_INFO = {
-  ld: 'Lodash',
+const DEFAULT_HANDLE_INFO = {
   app: 'The Loopback app handle',
-  context: 'The mock Loopback context',
   cb: 'A simplistic results callback that stores and prints',
-  result: 'The handle on which cb() stores results'
+  result: 'The handle on which cb() stores results',
 };
 
-module.exports = {
-  // Used for caching activation status across module
-  // loads from different sources
-  _activated: false,
-  _started: false,
-  _ctx: undefined,
-
-  activated: function () {
-    /* jshint eqeqeq:false */
-    this._activated =
-      this._activated ||
-      process.env.LOOPBACK_CONSOLE == 'true' ||
-      process.env.LOOPBACK_CONSOLE == 1 ||
-      _.contains(process.argv, '--console');
-
-    return this._activated;
+const LoopbackConsole = module.exports = {
+  activated() {
+    return process.env.LOOPBACK_CONSOLE == 'true' ||
+           process.env.LOOPBACK_CONSOLE == 1 ||
+           process.argv.includes('--console');
   },
 
-  start: function (app, config, cb) {
-    if (!cb && _.isFunction(config)) {
-      cb = config;
-      config = {};
-    }
-
+  start(app, config) {
     if (this._started) {
-      return cb && cb(null, this._ctx);
+      return this._ctx;
     }
     this._started = true;
 
-    config = _.extend({}, DEFAULT_CONFIG, config);
-
-    var ctx = this._ctx = {
-      app: app,
-      lbContext: undefined,
-      config: config,
+    config = Object.assign({}, DEFAULT_REPL_CONFIG, config);
+    const ctx = this._ctx = {
+      app,
+      config,
       handles: config.handles || {},
-      handleInfo: {},
-      models: {}
+      handleInfo: config.handleInfo || {},
+      models: {},
     };
 
-    if (config.useMockContext) {
-      ctx.lbContext = contextUtils.useMockContext(app.loopback);
-    }
-
-    _.forOwn(ctx.handles.models || app.models, function (model) {
-      if (!ctx.handles[model.modelName]) {
-        ctx.handles[model.modelName] = model;
-        ctx.models[model.modelName] = model;
-        delete ctx.handles.models;
+    Object.keys(app.models).forEach(modelName => {
+      if (!(modelName in ctx.handles)) {
+        ctx.models[modelName] = ctx.handles[modelName] = app.models[modelName];
       }
     });
 
-    if (!_.has(ctx.handles, 'ld')) {
-      ctx.handles.ld = _;
-      ctx.handleInfo.ld = DEFAULT_HANDLE_INFO.ld;
-    }
-    if (!_.has(ctx.handles, 'app')) {
+    if (!('app' in ctx.handles)) {
       ctx.handles.app = app;
       ctx.handleInfo.app = DEFAULT_HANDLE_INFO.app;
     }
-    if (!_.has(ctx.handles, 'cb') || ctx.handles.cb === true) {
+
+    if (ctx.handles.cb === true || !('cb' in ctx.handles)) {
       ctx.handles.cb = true;
       ctx.handleInfo.cb = DEFAULT_HANDLE_INFO.cb;
       ctx.handleInfo.result = DEFAULT_HANDLE_INFO.result;
-    }
-    if (ctx.lbContext && !_.has(ctx.handles, 'context')) {
-      ctx.handles.context = ctx.lbContext;
-      ctx.handleInfo.context =  DEFAULT_HANDLE_INFO.context;
     }
 
     if (!config.quiet) {
@@ -95,37 +60,7 @@ module.exports = {
 
     ctx.repl = repl.start(ctx);
 
-    return cb && cb(null, ctx);
+    return ctx;
   },
 
-  cli: function () {
-    var cwd = process.cwd();
-    var appPath = process.argv[2] || 'server/server';
-
-    var failBadPath = function () {
-      console.error('Error: Loopback app not loadable at path '+appPath+'!');
-      process.exit(1);
-    };
-
-    try {
-      this._activated = true;
-
-      var app = require(cwd+'/'+appPath);
-      if (!app.loopback) {
-        failBadPath();
-      }
-
-      module.exports.start(app);
-    } catch(err) {
-      if (err.code === 'MODULE_NOT_FOUND') {
-        failBadPath();
-      } else {
-        throw(err);
-      }
-    }
-  }
 };
-
-if (require.main === module) {
-  module.exports.cli();
-}

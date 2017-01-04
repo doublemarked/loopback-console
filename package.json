@@ -1,6 +1,6 @@
 {
   "name": "loopback-console",
-  "version": "0.2.3",
+  "version": "1.0.0",
   "description": "A command-line tool for Loopback app debugging and administration",
   "main": "index.js",
   "license": "MIT",
@@ -16,12 +16,15 @@
       "email": "heath@govright.org"
     }
   ],
+  "scripts": {
+    "lint": "eslint ."
+  },
   "bin": {
     "loopback-console": "./bin/loopback-console"
   },
-  "dependencies": {
-    "app-root-path": "^1.0.0",
-    "lodash": "^3.1.0"
-  },
-  "devDependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^3.12.2",
+    "eslint-config-loopback": "^6.1.0"
+  }
 }
