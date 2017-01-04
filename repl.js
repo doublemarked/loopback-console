@@ -1,6 +1,7 @@
 'use strict';
 
 const repl = require('repl');
+const replHistory = require('./history');
 
 const LoopbackRepl = module.exports = {
   start(ctx) {
@@ -9,7 +10,6 @@ const LoopbackRepl = module.exports = {
 
     Object.assign(replServer.context, ctx.handles);
 
-    replServer.on('exit', process.exit);
     replServer.eval = wrapReplEval(replServer);
 
     if (ctx.handles.cb === true) {
@@ -43,7 +43,17 @@ const LoopbackRepl = module.exports = {
       },
     });
 
-    return replServer;
+    replServer.on('exit', function() {
+      if (replServer._flushing) {
+        replServer.pause();
+        return replServer.once('flushHistory', function() {
+          process.exit();
+        });
+      }
+      process.exit();
+    });
+
+    return replHistory(replServer, config.historyPath).then(() => replServer);
   },
 
   usage(ctx, details) {

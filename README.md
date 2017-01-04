@@ -106,8 +106,11 @@ By integrating the loopback-console you also gain the ability to configure its f
 The following configuration directives are supported,
 
 - `quiet`: Suppresses the help text on startup and the automatic printing of `result`.
+- `historyPath`: The path to a file to persist command history. Use an empty string (`''`) to disable history.
 - All built-in configuration options for <a href="https://nodejs.org/api/repl.html" target="_blank">Node.js REPL</a>, such as `prompt`.
 - `handles`: Disable any default handles, or pass additional handles that you would like available on the console.
+
+Note, command history path can also be configured with the env-var `LOOPBACK_CONSOLE_HISTORY`.
 
 ## Contributors
 

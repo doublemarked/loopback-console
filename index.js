@@ -7,6 +7,7 @@ const DEFAULT_REPL_CONFIG = {
   prompt: 'loopback > ',
   useGlobal: true,
   ignoreUndefined: true,
+  historyPath: process.env.LOOPBACK_CONSOLE_HISTORY,
 };
 
 const DEFAULT_HANDLE_INFO = {
@@ -24,7 +25,7 @@ const LoopbackConsole = module.exports = {
 
   start(app, config) {
     if (this._started) {
-      return this._ctx;
+      return Promise.resolve(this._ctx);
     }
     this._started = true;
 
@@ -58,9 +59,10 @@ const LoopbackConsole = module.exports = {
       console.log(repl.usage(ctx));
     }
 
-    ctx.repl = repl.start(ctx);
-
-    return ctx;
+    return repl.start(ctx).then(repl => {
+      ctx.repl = repl;
+      return ctx;
+    });
   },
 
 };
